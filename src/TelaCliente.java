@@ -1,8 +1,11 @@
 
 import java.io.File;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.SpringLayout;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.table.DefaultTableModel;
 
 /*
@@ -167,14 +170,23 @@ public class TelaCliente extends javax.swing.JFrame {
     }//GEN-LAST:event_bSelecionarActionPerformed
 
     private void bUploadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bUploadActionPerformed
+        long bytesLimit = 4* 1024 * 1024;  
+        if(file.length() > bytesLimit){
+            JOptionPane.showMessageDialog(this, "Arquivo ultrapassa o limite de 4MB! Escolha outro arquivo.", "Limite máximo de arquivo", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+            
         bUpload.setEnabled(false);
         int id = cliente.enviarArquivo(file);
         DefaultTableModel model = (DefaultTableModel) tArquivos.getModel();
         model.addRow(new Object[]{id, file.getName()});
+        JOptionPane.showMessageDialog(this, "Upload realizado com sucesso!", "Upload de arquivo", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_bUploadActionPerformed
 
     private void bDownloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bDownloadActionPerformed
         cliente.retornarArquivo(selectedId);
+        JOptionPane.showMessageDialog(this, "Download realizado com sucesso!", "Download de arquivo", JOptionPane.INFORMATION_MESSAGE);
+
     }//GEN-LAST:event_bDownloadActionPerformed
 
     /**
