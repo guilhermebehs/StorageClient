@@ -25,6 +25,7 @@ public class TelaCliente extends javax.swing.JFrame {
     File file;
     Cliente cliente;
     int selectedId;
+    String selectedNomeArquivo;
     public TelaCliente() {
         initComponents();
         iniciar();
@@ -37,6 +38,7 @@ public class TelaCliente extends javax.swing.JFrame {
         tArquivos.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
         public void valueChanged(ListSelectionEvent event) {
            selectedId = (int) tArquivos.getValueAt(tArquivos.getSelectedRow(), 0);
+           selectedNomeArquivo = (String) tArquivos.getValueAt(tArquivos.getSelectedRow(), 1);
            bDownload.setEnabled(true);
         }
     });
@@ -180,11 +182,11 @@ public class TelaCliente extends javax.swing.JFrame {
         int id = cliente.enviarArquivo(file);
         DefaultTableModel model = (DefaultTableModel) tArquivos.getModel();
         model.addRow(new Object[]{id, file.getName()});
-        JOptionPane.showMessageDialog(this, "Upload realizado com sucesso!", "Upload de arquivo", JOptionPane.INFORMATION_MESSAGE);
+    JOptionPane.showMessageDialog(this, "Upload realizado com sucesso!", "Upload de arquivo", JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_bUploadActionPerformed
 
     private void bDownloadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bDownloadActionPerformed
-        cliente.retornarArquivo(selectedId);
+        cliente.retornarArquivo(selectedId, selectedNomeArquivo);
         JOptionPane.showMessageDialog(this, "Download realizado com sucesso!", "Download de arquivo", JOptionPane.INFORMATION_MESSAGE);
 
     }//GEN-LAST:event_bDownloadActionPerformed

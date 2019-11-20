@@ -19,8 +19,7 @@ public class Cliente {
  
      private Socket socketServidor;
      private OutputStream saida;
-     private InputStream entrada;
-    
+     private InputStream entrada;    
      
     public int enviarArquivo(File file){
         
@@ -32,10 +31,9 @@ public class Cliente {
              saida = socketServidor.getOutputStream();
              byte[] buf = Files.readAllBytes(file.toPath());
              saida.write(Operacao.ENVIAR_BYTES.valor);
-             for(int i = 0; i < buf.length; i++)
-                 saida.write(buf[i]);
-             sinalizarFimArquivo(saida);
              id = entrada.read();
+             saida.write(buf);
+             entrada.read();
              socketServidor.close();
          } catch (IOException ex) {
              ex.printStackTrace();
@@ -45,47 +43,59 @@ public class Cliente {
         
     }
     
-    public void retornarArquivo(int id){
-        
-        List<Integer> ints = new ArrayList();
-        
+    public void retornarArquivo(int id, String nomeArquivo){
+                
          try {
              socketServidor = new Socket("localhost", 8090);
              entrada = socketServidor.getInputStream();
              saida = socketServidor.getOutputStream();
              saida.write(Operacao.RETORNAR_BYTES.valor);
              saida.write(id);
-             int b = 0;
-             while((b = entrada.read()) != -1)
-                   ints.add(b);
-             byte[]  bytes = new byte[ints.size()];
-           
-              for(int i =0; i < ints.size(); i++)
-                  bytes[i] = ints.get(i).byteValue();
-               
-             FileOutputStream out = new FileOutputStream("arquivoDownload.txt");
-             out.write(bytes);
+             
+             //Aguarda o sinal de que já pode receber os bytes
+              entrada.read();
+              Thread.sleep(2000);
+              
+             byte[] bytesFinal =   retornaArquivoEmBytes(entrada);
+             FileOutputStream out = new FileOutputStream(nomeArquivo);
+             out.write(bytesFinal);
              out.close();
              
          } catch (IOException ex) {
             ex.printStackTrace();
+         } catch (InterruptedException ex) {
+             Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
          }
         
     }
     
     
-     public void sinalizarFimArquivo(OutputStream saida){
-         
-        try {
-            saida.write(-1);
-            saida.write(-1);
-            saida.write(-1);
-            saida.write(-1);
-            saida.write(-1);        
-        } catch (IOException ex) {
-            ex.printStackTrace();
-        }
-         
-     }
+    public byte[] retornaArquivoEmBytes(InputStream entrada) {
 
+        List<byte[]> bytesList = new ArrayList();
+        byte[] bytesFinal = new byte[1024];
+        int lengthFinal = 0;
+        try {
+            while (entrada.available() > 0) {
+                lengthFinal += entrada.available();
+                byte[] bytes = new byte[entrada.available()];
+                entrada.read(bytes, 0, entrada.available());
+                bytesList.add(bytes);
+            }
+            bytesFinal = new byte[lengthFinal];
+            int y = 0;
+            for (byte[] byt : bytesList) {
+                for (int i = 0; i < byt.length; i++) {
+                    bytesFinal[y] = byt[i];
+                    y++;
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return bytesFinal;
+    }
+    
 }
