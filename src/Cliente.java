@@ -30,7 +30,7 @@ public class Cliente {
              entrada = socketServidor.getInputStream();
              saida = socketServidor.getOutputStream();
              byte[] buf = Files.readAllBytes(file.toPath());
-             saida.write(Operacao.ENVIAR_BYTES.valor);
+             saida.write(Operacao.UPLOAD.valor);
              id = entrada.read();
              saida.write(buf);
              entrada.read();
@@ -49,7 +49,7 @@ public class Cliente {
              socketServidor = new Socket("localhost", 8090);
              entrada = socketServidor.getInputStream();
              saida = socketServidor.getOutputStream();
-             saida.write(Operacao.RETORNAR_BYTES.valor);
+             saida.write(Operacao.DOWNLOAD.valor);
              saida.write(id);
              
              //Aguarda o sinal de que já pode receber os bytes
